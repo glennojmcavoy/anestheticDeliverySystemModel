@@ -1,9 +1,9 @@
 types
 	  
 	DeliverySystem :: ECGReadings  -- Heart Rate
-  									EEGReadings  -- Brain Activity
-  									InfusionPump
-  									Tocsin;  
+  			  EEGReadings  -- Brain Activity
+  			  InfusionPump
+  			  Tocsin;  
 	
 	-- Sequence of 0s and 1s of size 10
   EEGReadings = seq of nat 
