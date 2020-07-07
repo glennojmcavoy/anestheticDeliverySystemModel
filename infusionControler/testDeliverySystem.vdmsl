@@ -1,0 +1,66 @@
+-- Tests
+operations
+
+-- Return true if invariant satisfied else error
+  
+  testECGInv: ECGReadings ==> bool
+  testECGInv(ecgR) == inv_ECGReadings(ecgR);
+  
+-- Returns true if invariant satisfied else error
+  
+  testEEGInv: EEGReadings ==> bool
+  testEEGInv(eegR) == inv_EEGReadings(eegR);
+
+-- Returns true if the value calculated using ecgR is equal to bpm
+-- e.g. ecgR = [100,100,100], bpm = 60 - returns true 
+    
+  testPostCalculateBPM: ECGReadings * real ==> bool
+  testPostCalculateBPM(ecgR, bpm) == 
+  return post_calculateBPM(ecgR, bpm);
+ 
+-- Returns true if value calculated using eegR is equal to supT
+-- e.g. eegR = [0,0,0,0,0,1,0,0,0,0], supT = 9 - returns true
+ 
+  testPostCalculateST: EEGReadings * nat ==> bool
+  testPostCalculateST(eegR, supT) == 
+  return post_calculateST(eegR, supT);
+
+-- Returns true if tocsin.active is set to the correct true/false setting according to the bpm
+-- e.g. bpm = 10, tocsin.active = true - returns true
+ 
+  testPreSoundTocsin: nat * Tocsin ==> bool
+  testPreSoundTocsin(bpm, tocsin) == 
+  return pre_soundTocsin(bpm,tocsin);
+ 
+-- Returns true when retVal has correct return value for the postcondition
+-- e.g. 10 tocsin.active = true is true returns true
+ 
+  testPostSoundTocsin: nat * Tocsin * bool ==> bool
+  testPostSoundTocsin(bpm, tocsin, retVal) == 
+  return post_soundTocsin(bpm, tocsin, retVal);
+
+-- Ensures tocsin.active = true before it can be reset  
+  
+  testPreResetTocsin: Tocsin ==> bool
+  testPreResetTocsin(tocsin) ==
+  return pre_resetTocsin(tocsin);
+   
+-- Returns true when retVal has correct return value for the postcondition
+-- e.g. Tocsin.active = false, retVal = false - returns true
+   
+  testPostResetTocsin: Tocsin * bool ==> bool
+  testPostResetTocsin(tocsin, retVal) == 
+  return post_resetTocsin(tocsin, retVal);
+  
+-- Returns true if supT < 11
+  
+  testPreInfuse: nat * InfusionPump ==> bool
+  testPreInfuse(supT, infusionPump) ==
+  return pre_infuse(supT, infusionPump);
+  
+-- Returns true when retVal has correct return value for the postcondition
+-- e.g. supT = 8, InfusionPump.active = true, retVal = true - returns true
+  
+  testPostInfuse: nat * InfusionPump * bool  ==> bool
+  testPostInfuse(supt, infusionPump, retVal) == 
+  return post_infuse(supt, infusionPump, retVal);

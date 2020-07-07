@@ -1,0 +1,19 @@
+-- Tests
+operations
+
+  testCalculateBPM: ECGReadings * real ==> seq of char
+  testCalculateBPM(ecgR, bpm) == 
+  return if post_calculateBPM(ecgR, bpm) then "Pass" else "Fail";
+ 
+  testCalculateST: EEGReadings * nat ==> bool
+  testCalculateST(eegR, n) == return post_calculateST(eegR, n);
+ 
+  testSoundTocsin: nat * Tocsin * bool ==> bool
+  testSoundTocsin(bpm, tocsin, retVal) == return post_soundTocsin(bpm, tocsin, retVal);
+ 
+  testInfuse: nat * InfusionPump * bool  ==> bool
+  testInfuse(supt, infusionPump, retVal) == return post_infuse(supt, infusionPump, retVal);
+
+  testInfuse: nat * InfusionPump * bool  ==> bool
+  testInfuse(supt, infusionPump, retVal) == return post_infuse(supt, infusionPump, retVal);
+  
