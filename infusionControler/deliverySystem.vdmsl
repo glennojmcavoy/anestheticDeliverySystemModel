@@ -1,9 +1,9 @@
 types
 	  
 	DeliverySystem :: ECGReadings  -- Heart Rate
-  			  EEGReadings  -- Brain Activity
-  			  InfusionPump
-  			  Tocsin;  
+  									EEGReadings  -- Brain Activity
+  									InfusionPump
+  									Tocsin;  
 	
 	-- Sequence of 0s and 1s of size 10
   EEGReadings = seq of nat 
@@ -11,7 +11,7 @@ types
  
   -- Sequence of numbers of size 3
   ECGReadings = seq of real -- time between beat in centiseconds 1*10^-2 better accuracy
-  inv ecgR == (len ecgR = 3) and (forall r in seq ecgR & r >= fastestTimeBetweenBeat or r = 0);
+  inv ecgR == (len ecgR = 3) and (forall r in seq ecgR & r >= 2 or r <= 600);
   
   InfusionPump :: active : bool;
   
@@ -19,53 +19,45 @@ types
   
 values
 
-	lowestBPM = 40;
-	minST = 9;
-	minute = 60;
-	burstSuppressionRatio = 10;
-	fastestTimeBetweenBeat = 27; --centiseconds
-	maxBPM = 223;
+  maxBPM = 300;
+	minBPM = 1;
+
+	maxSTForInfusion = 9;
+	
+	minST = 0;
+  maxST = 10;
+  
+  burstSuppressionRatio = 10;
+	
+	lowestBPM = 50;
+	highestBPM = 100;
 	  
 functions
  	
  	-- Uses last 3 readings of time between each beat to calculate BPM
  	calculateBPM(ecgReadings: ECGReadings) bpm: real 
- 	post bpm = 
- 	if forall r in seq ecgReadings & r = 0 then 0 
- 	else (minute / calculateAverageECGValue(ecgReadings)) * 100;
+ 	post bpm >= minBPM and bpm <= maxBPM;
  			
  	-- Calculates ST from a sequence of 10 segmented EEG readings 
  	calculateST(eegReadings: EEGReadings) suppressionTime: nat 
- 	post suppressionTime = burstSuppressionRatio - sumEEGReadings(eegReadings);
+ 	post suppressionTime = burstSuppressionRatio - sumEEGReadings(eegReadings) 
+ 	and suppressionTime >= minST and suppressionTime <= maxST;
  	
  	 	-- If BPM dips below lowestBPM --> tocsin active	
  	soundTocsin(bpm : real, tocsin: Tocsin) output: bool 
- 	pre tocsin.active = false and bpm < maxBPM
-  post output = tocsin.active = bpm < lowestBPM;
+ 	pre tocsin.active = false and bpm > lowestBPM and bpm < maxBPM
+  post output = tocsin.active = bpm < lowestBPM or bpm > highestBPM;
  	
  	-- Resets the tocsin
- 	resetTocsin(t: Tocsin) output: bool 
- 	pre t.active = true
- 	post output = t.active = false;
+ 	resetTocsin(tocsin: Tocsin) output: bool 
+ 	pre tocsin.active = true
+ 	post output = tocsin.active = false;
  	
  	-- If brain active for more than 1 second --> infuse patient
- 	infuse(supT: real, infusionPump: InfusionPump) output: bool 
- 	pre supT < 11 
- 	post output = infusionPump.active = supT < minST;
- 	
- 	-- Calculates average value of summed ECG Readings
- 	calculateAverageECGValue: seq of real -> real 
-	calculateAverageECGValue(hrR) == 
-  sumECGReadings(hrR) / len hrR;
- 	
- 	-- Adds together all the values of heartRate sequence
- 	sumECGReadings: seq of real -> real 
-	sumECGReadings(hrR) == 
-  if hrR = [] or hrR = [0,0,0]
-  then 0 
-  else hd hrR + sumECGReadings(tl hrR) 
-  measure len hrR;
-  
+ 	infuse(suppressionTime: real, infusionPump: InfusionPump) output: bool 
+ 	pre  suppressionTime >= minST and suppressionTime <= maxST
+ 	post output = infusionPump.active = suppressionTime < minST;
+ 	  
    -- Calculates number of 1s in sequence.
   sumEEGReadings: seq of real -> real
 	sumEEGReadings(eegR) == 
